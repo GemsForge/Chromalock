@@ -18,7 +18,24 @@ Chromalock follows the same issue-driven development practices used across the o
 
 ## Issue workflow
 
-Create or confirm an issue before implementation. The issue should contain:
+Create or confirm an issue before implementation. The issue title must use one of these formats:
+
+```text
+<type>: #<story-number> <imperative story description>
+<type>(<scope>): #<story-number> <imperative story description>
+```
+
+Example:
+
+```text
+feat: #42 add cooperative color-matching level
+feat(ui): #42 add cooperative color-matching level
+```
+
+The pull request title must be exactly the same as the story title, including the
+story number. Do not create a different PR title or add a second title convention.
+
+The issue should contain:
 
 - User or player value
 - Scope and non-goals
@@ -27,26 +44,32 @@ Create or confirm an issue before implementation. The issue should contain:
 - Testing expectations
 - Dependencies or blockers
 
-Suggested labels:
+Simple label and commit vocabulary:
 
 ```text
-type:feature
-type:bug
-type:chore
-type:docs
-area:gameplay
-area:multiplayer
-area:ui
-area:accessibility
-area:infrastructure
-priority:high
-priority:medium
-priority:low
+feat
+fix
+docs
+chore
+refactor
 ```
+
+Use the same type vocabulary for issue and pull request labels where possible. Add a
+scope only when it improves routing or review clarity. Approved scopes are:
+
+```text
+ui
+api
+ci
+<feature-specific-scope>
+```
+
+Examples of feature-specific scopes include `colors`, `levels`, `multiplayer`,
+`avatars`, and `accessibility`.
 
 ## Branch policy
 
-Branches must be created from the current default branch and named with the issue number and a short purpose. The issue title and pull request title do not need to include the issue number:
+Branches must be created from the current default branch and named with the issue number and a short purpose. The issue and pull request titles must use the same story-number format:
 
 ```text
 feature/123-color-mixing-level
@@ -70,27 +93,32 @@ Commits should be focused, readable, and traceable to the issue.
 Recommended format:
 
 ```text
-<type>(<scope>): <imperative summary> (#<issue>)
+<type>(<scope>): #<story-number> <imperative summary>
 ```
 
 Examples:
 
 ```text
-feat(colors): add pastel target contracts (#123)
-fix(multiplayer): reject stale room commands (#124)
-test(levels): cover level three obstacle rules (#125)
-docs(github): define pull request gates (#126)
+feat(colors): #123 add pastel target contracts
+fix(multiplayer): #124 reject stale room commands
+docs(github): #126 define pull request gates
+chore(ci): #127 add coverage workflow
+refactor(ui): #128 isolate room controls
 ```
 
-Allowed commit types:
+Allowed commit types and scopes:
 
 ```text
-feat     new behavior
-fix      defect correction
-test     tests or coverage
-refactor structural change without behavior change
-docs     documentation only
-chore    tooling or maintenance
+feat      new behavior
+fix       defect correction
+docs      documentation only
+chore     tooling or maintenance
+refactor  structural change without behavior change
+
+ui        interface and player interaction
+api       server, transport, or persistence boundary
+ci        automation, checks, and delivery workflow
+feature   a named Chromalock feature area, such as colors or levels
 ```
 
 Commit rules:
@@ -105,7 +133,7 @@ Commit rules:
 
 Open a pull request from the issue branch into the protected default branch.
 
-The pull request title does not need to include the issue number. The pull request body must include the authoritative issue link. The pull request must also include:
+The pull request title must exactly match the issue title, including the issue number. The pull request body must include the authoritative issue link. The pull request must also include:
 
 - A clear summary of the user-facing outcome
 - The linked issue using `Closes #123` or `Fixes #123`
@@ -167,6 +195,22 @@ coverage
 production-build
 accessibility-smoke
 ```
+
+### Workflow validation rule
+
+Workflow changes must be checked for YAML and shell quoting before they are relied
+on as merge gates. Bash regular expressions inside a YAML `run` block must use the
+number of backslashes Bash receives at runtime; do not double-escape a regex merely
+because it is embedded in YAML. For example:
+
+```bash
+pattern='^(feat|fix|docs|chore|refactor)(\([a-z0-9-]+\))?: #[0-9]+ .+'
+```
+
+After changing a workflow, verify the rendered workflow on a real pull request and
+confirm both a valid and an invalid commit message produce the expected result.
+Record any intentional failing gate in the PR instead of treating a successful build
+as proof that all policy checks ran.
 
 Playwright should cover at least:
 
