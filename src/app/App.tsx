@@ -20,7 +20,7 @@ export function App() {
           <Text size="sm" c="dimmed">Use the room code so both players can identify the same session.</Text>
         </Stack>
         <Badge color={game.room.partnerConnected ? 'teal' : game.room.status === 'host' ? 'yellow' : 'gray'}>
-          {game.room.partnerConnected ? 'PARTNER CONNECTED' : game.room.status === 'host' ? 'WAITING FOR PARTNER' : 'NO ROOM'}
+          {game.room.partnerConnected ? 'PARTNER CONNECTED' : game.room.status === 'host' ? 'WAITING FOR PARTNER' : game.room.status === 'joined' ? 'SYNC PENDING' : 'NO ROOM'}
         </Badge>
       </Group>
       <Group mt="md" align="end">
@@ -28,7 +28,7 @@ export function App() {
         <TextInput label="Room code" placeholder="CHRM-123" value={joinCode} onChange={(event) => setJoinCode(event.currentTarget.value)} onKeyDown={(event) => { if (event.key === 'Enter') game.joinRoom(joinCode); }} />
         <Button variant="light" onClick={() => game.joinRoom(joinCode)} disabled={!joinCode.trim()}>JOIN ROOM</Button>
       </Group>
-      {game.room.code && <Text size="sm" mt="sm" c="yellow">Share code <strong>{game.room.code}</strong> with your partner.</Text>}
+      {game.room.code && <Text size="sm" mt="sm" c="yellow">Room <strong>{game.room.code}</strong> joined. Multiplayer sync will begin when the server confirms the room.</Text>}
     </Paper>
 
     <section className="hud"><div><b>{game.player.name}</b><small>{game.player.role}</small></div><div className="status"><i/> {game.partner.name === 'WAITING FOR PARTNER' ? 'WAITING FOR PARTNER' : 'PARTNER LINKED'} <span>{game.partner.name}</span></div><div className="beacon"><small>LANTERNS LIT</small><strong>{game.litCount} / 4</strong><Progress value={game.litCount * 25} color="yellow" /></div></section>
