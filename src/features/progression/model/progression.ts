@@ -47,15 +47,15 @@ export function completeLevel(
   state: ProgressionState,
   levelId: number,
 ): ProgressionState {
-  const level = levels.find((candidate) => candidate.id === levelId);
-  if (!level || state.completedLevelIds.includes(levelId)) return state;
+  const completedLevel = levels.find((candidate) => candidate.id === levelId);
+  if (!completedLevel || state.completedLevelIds.includes(levelId)) return state;
 
   const completedLevelIds = [...state.completedLevelIds, levelId];
-  const score = state.score + level.points;
-  const level = Math.max(state.level, levelId + 1);
+  const score = state.score + completedLevel.points;
+  const nextLevel = Math.max(state.level, levelId + 1);
   const avatarStage: AvatarStage =
     completedLevelIds.length >= 3 ? 'spark' :
     completedLevelIds.length >= 2 ? 'accent' : 'uniform';
 
-  return { level, score, avatarStage, completedLevelIds };
+  return { level: nextLevel, score, avatarStage, completedLevelIds };
 }
