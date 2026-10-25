@@ -49,3 +49,49 @@ jobs:
             echo "Commit messages must match: <type>[(<scope>)]: #<story-number> <imperative summary>"
             exit 1
           fi
+
+  pr-sync:
+    name: Validate PR and story sync
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - name: Check linked story and matching title
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          body="$(gh pr view "$PR_NUMBER" --json body --jq '.body')"
+          story_number="$(printf '%s' "$body" | sed -nE 's/.*(Closes|Fixes) #[[:space:]]*([0-9]+).*/\2/p' | head -n1)"
+          test -n "$story_number" || { echo 'PR must contain Closes #<story-number> or Fixes #<story-number>'; exit 1; }
+          story_title="$(gh issue view "$story_number" --json title --jq '.title')"
+          test "$PR_TITLE" = "$story_title" || { echo "PR title does not match issue #$story_number title"; exit 1; }
+          [[ "$HEAD_BRANCH" == *"/$story_number-"* ]] || { echo "Branch must include /$story_number-"*; exit 1; }
+
+  label-policy:
+    name: Validate label policy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Check PR and story labels are synchronized
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          payload="$(gh pr view "$PR_NUMBER" --json body,labels --jq '{body: .body, labels: [.labels[].name]}')"
+          story_number="$(jq -r '.body' <<< "$payload" | sed -nE 's/.*(Closes|Fixes) #[[:space:]]*([0-9]+).*/\2/p' | head -n1)"
+          test -n "$story_number" || { echo 'Cannot apply label policy without a linked story'; exit 1; }
+          pr_labels="$(jq -c '.labels | sort' <<< "$payload")"
+          issue_labels="$(gh issue view "$story_number" --json labels --jq '[.labels[].name] | sort')"
+          test "$pr_labels" != '[]' || { echo 'PR must have at least one label'; exit 1; }
+          test "$pr_labels" = "$issue_labels" || { echo "PR labels $pr_labels do not match issue #$story_number labels $issue_labels"; exit 1; }
