@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --experimental-strip-types --test tests/room.test.mjs tests/colorRules.test.mjs tests/progression.test.mjs",
+    "test": "node --experimental-strip-types --test tests/room.test.mjs tests/colorRules.test.mjs tests/progression.test.mjs tests/themeTokens.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
