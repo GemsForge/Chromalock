@@ -72,7 +72,7 @@ jobs:
           test -n "$story_number" || { echo 'PR must contain Closes #<story-number> or Fixes #<story-number>'; exit 1; }
           story_title="$(gh issue view "$story_number" --json title --jq '.title')"
           test "$PR_TITLE" = "$story_title" || { echo "PR title does not match issue #$story_number title"; exit 1; }
-          [[ "$HEAD_BRANCH" == *"/$story_number-"* ]] || { echo "Branch must include /$story_number-"*; exit 1; }
+          [[ "$HEAD_BRANCH" == *"/$story_number-"* ]] || { echo "Branch must include /$story_number-<purpose>"; exit 1; }
 
   label-policy:
     name: Validate label policy
