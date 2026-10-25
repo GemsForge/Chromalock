@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - feature/1-bootstrap-react-architecture
+      - feature/3-challenge-ready-release
   push:
     branches: [master]
 
