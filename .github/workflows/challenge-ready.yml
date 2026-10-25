@@ -2,7 +2,9 @@ name: Challenge-ready checks
 
 on:
   pull_request:
-    branches: [master]
+    branches:
+      - master
+      - feature/1-bootstrap-react-architecture
   push:
     branches: [master]
 
