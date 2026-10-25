@@ -23,6 +23,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - run: npm test
 
   commit-messages:
     name: Validate commit messages
@@ -42,6 +43,9 @@ jobs:
           pattern='^(feat|fix|docs|chore|refactor)(\([a-z0-9-]+\))?: #[0-9]+ .+'
           failed=0
           while IFS= read -r subject; do
+            if [[ "$subject" == Merge\ * ]]; then
+              continue
+            fi
             if ! printf '%s\n' "$subject" | grep -Eq "$pattern"; then
               echo "Invalid commit message: $subject"
               failed=1
@@ -49,6 +53,7 @@ jobs:
           done < <(git log --format=%s "$BASE_SHA..$HEAD_SHA")
           if (( failed )); then
             echo "Commit messages must match: <type>[(<scope>)]: #<story-number> <imperative summary>"
+            echo "Merge commits beginning with 'Merge ' are allowed for branch synchronization."
             exit 1
           fi
 
