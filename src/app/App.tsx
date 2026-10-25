@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ChromalockBoard } from '../features/constellation/components/LanternwakeBoard';
-import { useChromalockGame } from '../features/constellation/model/useLanternwakeGame';
+import { ChromalockBoard } from '../features/constellation/components/ChromalockBoard';
+import { useChromalockGame } from '../features/constellation/model/useChromalockGame';
 
 export function App() {
   const game = useChromalockGame();
