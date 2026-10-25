@@ -15,6 +15,14 @@ export function colorsMatch(
   return left === right;
 }
 
+export function cooperativeMatch(
+  playerOne: ChromalockColor | null,
+  playerTwo: ChromalockColor | null,
+  target: ChromalockColor,
+): boolean {
+  return playerOne === target && playerTwo === target;
+}
+
 export function nextColor(
   current: ChromalockColor,
   direction: 'next' | 'previous',
