@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { multiplayerConfigured, subscribeToRoom } from '../../../infrastructure/multiplayer/supabaseRoom';
 
 export type Lantern = { id:number; glyph:string; color:string; revealed:boolean; lit:boolean };
 export type RoomState = { code:string; status:'idle'|'host'|'joined'; partnerConnected:boolean };
@@ -11,6 +12,14 @@ export function useChromalockGame() {
   const [selected, setSelected] = useState<number[]>([]);
   const [litCount, setLitCount] = useState(0);
   const [room, setRoom] = useState<RoomState>({ code:'', status:'idle', partnerConnected:false });
+  const playerId = 'player-' + Math.random().toString(36).slice(2, 10);
+
+  useEffect(() => {
+    if (!room.code || !multiplayerConfigured) return;
+    return subscribeToRoom(room.code, playerId, (count) => {
+      setRoom(current => ({ ...current, partnerConnected: count > 1 }));
+    }) ?? undefined;
+  }, [room.code]);
 
   const createRoom = () => setRoom({ code:makeRoomCode(), status:'host', partnerConnected:false });
   const joinRoom = (code:string) => {
