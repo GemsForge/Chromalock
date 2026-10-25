@@ -15,7 +15,7 @@ export function useChromalockGame() {
   const createRoom = () => setRoom({ code:makeRoomCode(), status:'host', partnerConnected:false });
   const joinRoom = (code:string) => {
     const normalized = code.trim().toUpperCase();
-    if (/^CHRM-\\d{3}$/.test(normalized)) setRoom({ code:normalized, status:'joined', partnerConnected:true });
+    if (/^CHRM-\\d{3}$/.test(normalized)) setRoom({ code:normalized, status:'joined', partnerConnected:false });
   };
 
   const choose = (id:number) => {
